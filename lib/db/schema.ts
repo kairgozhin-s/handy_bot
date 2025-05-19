@@ -100,6 +100,34 @@ export const vote = pgTable(
   },
 );
 
+export const tradingRules = pgTable('TradingRule', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  name: text('name').notNull(),
+  mode: text('mode').notNull(), // 'SAFU' or 'HOT'
+  conditions: json('conditions').notNull(),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+  isActive: boolean('isActive').default(true).notNull(),
+  walletAddress: text('walletAddress'), // Only for HOT mode
+  lastExecuted: timestamp('lastExecuted'),
+  executionHistory: json('executionHistory').default([]),
+});
+
+export const userSettings = pgTable('UserSetting', {
+  userId: uuid('userId').primaryKey()
+    .references(() => user.id),
+  defaultMode: text('defaultMode').default('SAFU').notNull(),
+  notificationPreferences: json('notificationPreferences').default({
+    email: true,
+    push: true,
+  }).notNull(),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
+});
+
 export type Vote = InferSelectModel<typeof vote>;
 
 export const document = pgTable(
